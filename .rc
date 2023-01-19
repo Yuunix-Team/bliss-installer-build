@@ -1,0 +1,12 @@
+#!/bin/bash
+
+err() { echo -e "ERROR: $1 !"; exit 1; }
+argerr() { err "Cannot set $1 to empty"; }
+cmderr() { err "Command failed"; }
+cderr() { err "Path $1 is not found"; }
+
+ckroot() {
+    if (($(id -u) != 0)); then
+        err "Please run this command as root"
+    fi
+}
