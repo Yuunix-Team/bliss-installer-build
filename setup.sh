@@ -17,25 +17,16 @@ while [[ "$1" ]]; do
 done
 
 mkdir -p build dist
-tar -C build -xzvf build.tar.gz > /dev/null 2>&1 || cmderr
+tar -C build -xzvf build.tar.gz >/dev/null 2>&1 || cmderr
 
-if [ -z "$mirror" ]; then
-	mirror=https://dl-cdn.alpinelinux.org/alpine
-	read -s -p "Enter mirror (default: https://dl-cdn.alpinelinux.org/alpine): " mirror
-	echo ""
-fi
+[ -z "$mirror" ] && read -p "Enter mirror (default: https://dl-cdn.alpinelinux.org/alpine): " mirror
+[ -z "$mirror" ] && mirror="https://dl-cdn.alpinelinux.org/alpine"
 
-if [ -z "$branch" ]; then
-	branch=latest-stable
-	read -s -p "Enter branch (default: latest-stable): " branch
-	echo ""
-fi
+[ -z "$branch" ] && read -p "Enter branch (default: latest-stable): " branch
+[ -z "$branch" ] && branch=latest-stable
 
-if [ -z "$arch" ]; then
-	arch=x86
-	read -s -p "Enter architecture: (default: x86): " arch
-	echo ""
-fi
+[ -z "$arch" ] && read -p "Enter architecture: (default: x86): " arch
+[ -z "$arch" ] && arch=x86
 
 [ "$builddir" ] || builddir=./build
 echo "Build directory is $builddir"
@@ -43,6 +34,6 @@ echo "Build directory is $builddir"
 [ "$pkglist" ] || pkglist=./pkglist.txt
 echo "Using package list $pkglist"
 
-apk --arch "$arch" -X "$mirror/$branch/main/" -X "$mirror/$branch/community/" -X "$(cat apk/repositories)" -U --allow-untrusted --root "$builddir"/ --initdb add - <"$pkglist" || cmderr
+apk --arch "$arch" -X "$mirror/$branch/main/" -X "$mirror/$branch/community/" -X "$(cat apk/repositories)" -U --allow-untrusted --root "$builddir"/ --initdb add $(tr "\n" " " <"$pkglist") || cmderr
 
 cp -r etc "$builddir"/
