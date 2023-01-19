@@ -5,6 +5,7 @@ Original: [axonasif/gearlock][gearlock]
 ## Dependencies
 
 [alpine/apk-tools][apk-tools] (any distro that has apk-tools available, including gearlock itself)
+
 [shadichy/mkinitfs][mkinitfs] (already included)
 
 ## Setup
