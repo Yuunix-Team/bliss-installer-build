@@ -39,6 +39,7 @@ apk --arch "$arch" -X "$mirror/$branch/main/" -X "$mirror/$branch/community/" -X
 cp -r etc "$builddir"/
 cp chroot.sh "$builddir"/
 
-chroot "$builddir"/ /chroot.sh
+chroot "$builddir"/ /chroot.sh || cmderr
 
 cp -r gearlock/src/* "$builddir"/
+rm -rf "$builddir"/chroot.sh
