@@ -25,6 +25,7 @@ mc
 mkinitfs
 nano
 ncurses
+nlplug-findfs
 ntfs-3g
 os-prober
 p7zip

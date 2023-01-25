@@ -34,7 +34,7 @@ echo "Build directory is $builddir"
 pkglist=${pkglist:-./pkglist.txt}
 echo "Using package list $pkglist"
 
-apk --arch "$arch" -X "$mirror/$branch/main/" -X "$mirror/$branch/community/" -X "$(cat apk/repositories)" -U --allow-untrusted --root "$builddir"/ --initdb add $(tr "\n" " " <"$pkglist") || cmderr
+apk --arch "$arch" -X "$(cat apk/repositories)" -X "$mirror/$branch/main/" -X "$mirror/$branch/community/" -U --allow-untrusted --root "$builddir"/ --initdb add $(tr "\n" " " <"$pkglist") || cmderr
 
 cp -r etc "$builddir"/
 cp chroot.sh "$builddir"/
