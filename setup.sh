@@ -42,4 +42,10 @@ cp chroot.sh "$builddir"/
 chroot "$builddir"/ /chroot.sh || cmderr
 
 cp -r gearlock/src/* "$builddir"/
-rm -rf "$builddir"/chroot.sh
+rm -rf "$builddir"/chroot.sh "$builddir"/bin "$builddir"/lib "$builddir"/sbin "$builddir"/usr/sbin
+ln -s usr/lib "$builddir"/lib
+ln -s usr/bin "$builddir"/bin
+ln -s usr/bin "$builddir"/sbin
+ln -s bin "$builddir"/usr/sbin
+
+
