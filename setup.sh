@@ -36,7 +36,6 @@ echo "Using package list $pkglist"
 
 apk --arch "$arch" -X "$(cat apk/repositories)" -X "$mirror/$branch/main/" -X "$mirror/$branch/community/" -U --allow-untrusted --root "$builddir"/ --initdb add $(tr "\n" " " <"$pkglist") || cmderr
 
-cp -r etc "$builddir"/
 cp chroot.sh "$builddir"/
 
 chroot "$builddir"/ /chroot.sh || cmderr

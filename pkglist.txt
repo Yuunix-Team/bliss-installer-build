@@ -25,6 +25,7 @@ mc
 mkinitfs
 nano
 ncurses
+ncurses-terminfo
 nlplug-findfs
 ntfs-3g
 os-prober
