@@ -1,3 +1,6 @@
-/build
 .vscode
-dist/gearlock
+/build
+/dist
+/tmp
+/repo
+/.cache

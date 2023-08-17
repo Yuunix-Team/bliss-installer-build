@@ -1,12 +1,12 @@
 # Gearlock (shadichy branch)
 
-Original: [axonasif/gearlock][gearlock]
+Original: [axonasif/gearlock][orig]
 
 ## Dependencies
 
 [alpine/apk-tools][apk-tools] (any distro that has apk-tools available, including gearlock itself)
 
-[shadichy/mkinitfs][mkinitfs] (already included)
+[Yuunix-Team/gearlock-core][gearlock] (already included)
 
 ## Setup
 
@@ -16,6 +16,6 @@ Run `setup.sh`
 
 Run `build.sh`
 
-[gearlock]: https://github.com/axonasif/gearlock
+[orig]: https://github.com/axonasif/gearlock
+[gearlock]: https://github.com/Yuunix-Team/gearlock-core
 [apk-tools]: https://gitlab.alpinelinux.org/alpine/apk-tools
-[mkinitfs]: https://github.com/shadichy/mkinitfs

@@ -2,21 +2,22 @@
 
 . .rc
 
-ckroot
-
 while [[ "$1" ]]; do
 	case "$1" in
 	-a | --arch) [ -z "$2" ] && argerr "$1" || arch="$2" ;;
 	-m | --mirror) [ -z "$2" ] && argerr "$1" || mirror="$2" ;;
 	-b | --branch) [ -z "$2" ] && argerr "$1" || branch="$2" ;;
 	-d | --builddir) [ -z "$2" ] && argerr "$1" || builddir="$2" ;;
+	-t | --tmpdir) [ -z "$2" ] && argerr "$1" || tmpdir="$2" ;;
 	-p | --pkglist) [ -z "$2" ] && argerr "$1" || pkglist="$2" ;;
+	*) break ;;
 	esac
-	shift
-	shift
+	shift 2
 done
 
-mkdir -p build dist
+rm -rf tmp
+mkdir -p tmp
+
 # tar -C build -xzvf build.tar.gz >/dev/null 2>&1 || cmderr
 
 [ -z "$mirror" ] && read -p "Enter mirror (default: https://dl-cdn.alpinelinux.org/alpine): " mirror
@@ -31,20 +32,30 @@ arch=${arch:-x86}
 builddir=${builddir:-./build}
 echo "Build directory is $builddir"
 
+tmpdir=${tmpdir:-./tmp}
+echo "Temp directory is $tmpdir"
+
 pkglist=${pkglist:-./pkglist.txt}
 echo "Using package list $pkglist"
 
-apk --arch "$arch" -X "$(cat apk/repositories)" -X "$mirror/$branch/main/" -X "$mirror/$branch/community/" -U --allow-untrusted --root "$builddir"/ --initdb add $(tr "\n" " " <"$pkglist") || cmderr
+# build gearlock
+cd gearlock
+abuild -f
+cd ..
+cp "$(ls ~/packages/*/$arch/gearlock-*.apk | head -1)" tmp/
 
-cp chroot.sh "$builddir"/
+export mirror branch arch builddir tmpdir pkglist
 
-chroot "$builddir"/ /chroot.sh || cmderr
-
-cp -r gearlock/src/* "$builddir"/
-rm -rf "$builddir"/chroot.sh "$builddir"/bin "$builddir"/lib "$builddir"/sbin "$builddir"/usr/sbin
-ln -s usr/lib "$builddir"/lib
-ln -s usr/bin "$builddir"/bin
-ln -s usr/bin "$builddir"/sbin
-ln -s bin "$builddir"/usr/sbin
-
-
+for cmd in sudo doas pkexec; do
+	if [ "$(command -v $cmd)" ]; then
+		$cmd /usr/bin/env \
+			mirror="$mirror" \
+			branch="$branch" \
+			arch="$arch" \
+			builddir="$builddir" \
+			tmpdir="$tmpdir" \
+			pkglist="$pkglist" \
+			./build.sh $@
+		exit $?
+	fi
+done
