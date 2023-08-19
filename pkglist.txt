@@ -82,7 +82,6 @@ ncurses
 ncurses-libs
 ncurses-terminfo-base
 nettle
-nlplug-findfs
 npth
 ntfs-3g
 ntfs-3g-libs

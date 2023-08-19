@@ -21,3 +21,6 @@ for d in bin sbin usr/sbin; do
         fi
     done
 done
+
+# shellcheck disable=SC2016
+sed -i 's|GRUB_DEVICE="`${grub_probe} --target=device /`"|GRUB_DEVICE="`${grub_probe} --target=device "$ROOT"`"|g' /bin/grub-mkconfig
