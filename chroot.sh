@@ -4,7 +4,7 @@ export PATH=/bin:/sbin:/usr/local/bin:/usr/bin:/usr/sbin
 
 /bin/busybox --install -s
 
-mkdir -p android apex boot data gearroot gearload system vendor
+mkdir -p android apex boot data gearroot gearload system vendor linkerconfig
 
 cd /lib
 for so in *; do
