@@ -20,13 +20,13 @@ mkdir -p tmp
 
 # tar -C build -xzvf build.tar.gz >/dev/null 2>&1 || cmderr
 
-[ -z "$mirror" ] && read -p "Enter mirror (default: https://dl-cdn.alpinelinux.org/alpine): " mirror
+[ -z "$mirror" ] && read -rp "Enter mirror (default: https://dl-cdn.alpinelinux.org/alpine): " mirror
 mirror=${mirror:-"https://dl-cdn.alpinelinux.org/alpine"}
 
-[ -z "$branch" ] && read -p "Enter branch (default: latest-stable): " branch
+[ -z "$branch" ] && read -rp "Enter branch (default: latest-stable): " branch
 branch=${branch:-latest-stable}
 
-[ -z "$arch" ] && read -p "Enter architecture: (default: x86): " arch
+[ -z "$arch" ] && read -rp "Enter architecture: (default: x86): " arch
 arch=${arch:-x86}
 
 builddir=${builddir:-./build}

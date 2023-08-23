@@ -18,8 +18,10 @@ while [[ "$1" ]]; do
 done
 PWD=$(pwd)
 
-[ -z "$comp" ] && read -p "Enter compression program: (default: gzip): " comp
-[ -z "$comp" ] && comp=gzip
+if [ "$use" != "img" ]; then
+	[ -z "$comp" ] && read -rp "Enter compression program: (default: gzip): " comp
+	[ -z "$comp" ] && comp=gzip
+fi
 
 [ "$builddir" ] || builddir=./build
 echo "Build directory is $builddir"
@@ -43,10 +45,10 @@ apk --arch "$arch" \
 
 if [ "$use" = "img" ]; then
 	if [ "$(command -v truncate)" ]; then
-		truncate -s 100M "$dist"
+		truncate -s 4096M "$dist"
 		ls $dist
 	else
-		dd if=/dev/zero of="$dist" bs=1M seek=100
+		dd if=/dev/zero of="$dist" bs=1M count=0 seek=4096
 	fi
 	mkfs.ext4 "$dist"
 	mount -o loop "$dist" "$(ls -d "$builddir")"
@@ -70,15 +72,12 @@ rm -rf \
 	"$builddir"/bin \
 	"$builddir"/lib \
 	"$builddir"/sbin \
-	"$builddir"/usr/sbin \
-	"$builddir"/usr/lib/firmware \
-	"$builddir"/usr/lib/modules
+	"$builddir"/usr/sbin
 ln -s usr/lib "$builddir"/lib
 ln -s usr/bin "$builddir"/bin
 ln -s usr/bin "$builddir"/sbin
 ln -s bin "$builddir"/usr/sbin
-ln -s /system/lib/modules "$builddir"/usr/lib/
-ln -s /system/lib/firmware "$builddir"/usr/lib/
+mkdir -p "$builddir"/usr/lib/modules "$builddir"/usr/lib/firmware
 
 if [ "$use" = "squashfs" ]; then
 	mksquashfs "$builddir" "$dist" -comp "$comp" -no-duplicates -no-recovery -always-use-fragments "$@" >/dev/null 2>&1 || cmderr
