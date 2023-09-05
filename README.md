@@ -8,13 +8,9 @@ Original: [axonasif/gearlock][orig]
 
 [Yuunix-Team/gearlock-core][gearlock] (already included)
 
-## Setup
-
-Run `setup.sh`
-
 ## Build
 
-Run `build.sh`
+Run `setup.sh`
 
 [orig]: https://github.com/axonasif/gearlock
 [gearlock]: https://github.com/Yuunix-Team/gearlock-core
