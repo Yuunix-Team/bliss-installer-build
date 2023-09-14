@@ -64,7 +64,7 @@ apk --arch "$arch" \
 
 cp chroot.sh "$builddir"/
 
-chroot "$builddir"/ /chroot.sh || cmderr
+SHELL=/bin/sh chroot "$builddir"/ /chroot.sh || cmderr
 
 # cp -r gearlock/src/* "$builddir"/
 rm -rf \
@@ -84,7 +84,7 @@ if [ "$use" = "squashfs" ]; then
 else
 	outfile=$(readlink -f "$dist")
 	if [ "$use" = "img" ]; then
-		umount "$builddir"
+		umount -r "$builddir"
 	else
 		cd "$builddir" || cderr "$builddir"
 		eval "find . | cpio --create --format='newc' | $comp $* > $outfile" >/dev/null 2>&1 || cmderr

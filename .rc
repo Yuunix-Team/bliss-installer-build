@@ -1,6 +1,12 @@
 #!/bin/bash
 
-err() { echo -e "ERROR: $1 !"; exit 1; }
+err() {
+    echo -e "ERROR: $1 !"
+    if [ "$use" = "img" ]; then
+        umount -r "$builddir"
+    fi
+    exit 1
+}
 argerr() { err "Cannot set $1 to empty"; }
 cmderr() { err "Command failed"; }
 cderr() { err "Path $1 is not found"; }
