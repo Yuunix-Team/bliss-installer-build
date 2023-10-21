@@ -1,5 +1,6 @@
 alpine-baselayout
 alpine-baselayout-data
+apk-tools
 argon2-libs
 axel
 bash
