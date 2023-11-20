@@ -40,7 +40,7 @@ echo "Using package list $pkglist"
 
 # build gearlock
 cd gearlock
-abuild -f
+abuild -Ff
 cd ..
 cp "$(ls ~/packages/*/$arch/gearlock-*.apk | head -1)" tmp/
 
