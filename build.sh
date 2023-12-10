@@ -33,15 +33,15 @@ echo "Generate to $dist"
 rm -rf build dist
 mkdir -p build dist
 
-# cd tmp
+cd tmp
 apk --arch "$arch" \
-	-X "$(cat apk/repositories)" \
+	-X "$(cat ../apk/repositories)" \
 	-X "$mirror/$branch/main/" \
 	-X "$mirror/$branch/community/" \
 	--no-cache \
 	-U --allow-untrusted --progress \
-	fetch $(tr "\n" " " <"$pkglist") || cmderr
-# cd ..
+	fetch $(tr "\n" " " <"../$pkglist") || cmderr
+cd ..
 
 if [ "$use" = "img" ]; then
 	if [ "$(command -v truncate)" ]; then
@@ -54,7 +54,7 @@ if [ "$use" = "img" ]; then
 	mount -o loop "$dist" "$(ls -d "$builddir")"
 fi
 
-mv *.apk tmp/
+# mv *.apk tmp/
 apk --arch "$arch" \
 	--root "$builddir" \
 	--no-cache \
@@ -62,21 +62,21 @@ apk --arch "$arch" \
 	--initdb \
 	add tmp/*.apk
 
-cp chroot.sh "$builddir"/
-
-SHELL=/bin/sh chroot "$builddir"/ /chroot.sh || cmderr
+# cp chroot.sh "$builddir"/
+# 
+# SHELL=/bin/sh chroot "$builddir"/ /chroot.sh || cmderr
 
 # cp -r gearlock/src/* "$builddir"/
-rm -rf \
-	"$builddir"/chroot.sh \
-	"$builddir"/bin \
-	"$builddir"/lib \
-	"$builddir"/sbin \
-	"$builddir"/usr/sbin
-ln -s usr/lib "$builddir"/lib
-ln -s usr/bin "$builddir"/bin
-ln -s usr/bin "$builddir"/sbin
-ln -s bin "$builddir"/usr/sbin
+	# "$builddir"/chroot.sh \
+# rm -rf \
+# 	"$builddir"/bin \
+# 	"$builddir"/lib \
+# 	"$builddir"/sbin \
+# 	"$builddir"/usr/sbin
+# ln -s usr/lib "$builddir"/lib
+# ln -s usr/bin "$builddir"/bin
+# ln -s usr/bin "$builddir"/sbin
+# ln -s bin "$builddir"/usr/sbin
 mkdir -p "$builddir"/usr/lib/modules "$builddir"/usr/lib/firmware
 
 if [ "$use" = "squashfs" ]; then
