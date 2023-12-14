@@ -2,7 +2,7 @@
 
 declare -a apk_cmd=(apk -X https://dl-cdn.alpinelinux.org/alpine/edge/main/
 	-X https://dl-cdn.alpinelinux.org/alpine/edge/community/
-	-X /home/shadichy/packages/gearbuild/x86_64/
+	-X ~/packages/gearbuild/x86_64/
 	--arch x86_64 -U --no-cache info)
 
 apk_filter() {
