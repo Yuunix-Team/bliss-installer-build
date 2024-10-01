@@ -1,3 +1,6 @@
 [submodule "gearlock"]
 	path = gearlock
 	url = https://github.com/Yuunix-Team/blissos-installer-alpine
+[submodule "calamares"]
+	path = calamares
+	url = https://github.com/Yuunix-Team/blissos-calamares
