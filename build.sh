@@ -19,8 +19,8 @@ done
 PWD=$(pwd)
 
 if [ "$use" != "img" ]; then
-	[ -z "$comp" ] && read -rp "Enter compression program: (default: gzip): " comp
-	[ -z "$comp" ] && comp=gzip
+	[ -z "$comp" ] && read -rp "Enter compression program: (default: zstd): " comp
+	[ -z "$comp" ] && comp=zstd
 fi
 
 [ "$builddir" ] || builddir=./build
@@ -60,7 +60,7 @@ apk --arch "$arch" \
 	--no-cache \
 	-U --allow-untrusted --progress \
 	--initdb \
-	add alpine-base /home/*/packages/*/$arch/blissos-installer-*.apk
+	add alpine-base jwm calamares xinit gzip /home/*/packages/*/$arch/blissos-installer-*.apk
 
 # cp chroot.sh "$builddir"/
 # 
