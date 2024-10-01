@@ -9,7 +9,7 @@ while [[ "$1" ]]; do
 	-b | --branch) [ -z "$2" ] && argerr "$1" || branch="$2" ;;
 	-d | --builddir) [ -z "$2" ] && argerr "$1" || builddir="$2" ;;
 	-t | --tmpdir) [ -z "$2" ] && argerr "$1" || tmpdir="$2" ;;
-	-p | --pkglist) [ -z "$2" ] && argerr "$1" || pkglist="$2" ;;
+	# -p | --pkglist) [ -z "$2" ] && argerr "$1" || pkglist="$2" ;;
 	*) break ;;
 	esac
 	shift 2
@@ -35,8 +35,8 @@ echo "Build directory is $builddir"
 tmpdir=${tmpdir:-./tmp}
 echo "Temp directory is $tmpdir"
 
-pkglist=${pkglist:-./pkglist.txt}
-echo "Using package list $pkglist"
+# pkglist=${pkglist:-./pkglist.txt}
+# echo "Using package list $pkglist"
 
 # build gearlock
 cd gearlock
@@ -54,8 +54,8 @@ for cmd in sudo doas pkexec; do
 			arch="$arch" \
 			builddir="$builddir" \
 			tmpdir="$tmpdir" \
-			pkglist="$pkglist" \
 			./build.sh $@
+			# pkglist="$pkglist" \
 		exit $?
 	fi
 done

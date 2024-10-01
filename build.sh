@@ -33,20 +33,19 @@ echo "Generate to $dist"
 rm -rf build dist
 mkdir -p build dist
 
-cd tmp
-apk --arch "$arch" \
-	-X "$(cat ../apk/repositories)" \
-	-X "$mirror/$branch/main/" \
-	-X "$mirror/$branch/community/" \
-	--no-cache \
-	-U --allow-untrusted --progress \
-	fetch $(tr "\n" " " <"../$pkglist") || cmderr
-cd ..
+# cd tmp
+# apk --arch "$arch" \
+# 	-X "$(cat ../apk/repositories)" \
+# 	-X "$mirror/$branch/main/" \
+# 	-X "$mirror/$branch/community/" \
+# 	--no-cache \
+# 	-U --allow-untrusted --progress \
+# 	fetch $(tr "\n" " " <"../$pkglist") || cmderr
+# cd ..
 
 if [ "$use" = "img" ]; then
 	if [ "$(command -v truncate)" ]; then
 		truncate -s 4096M "$dist"
-		ls $dist
 	else
 		dd if=/dev/zero of="$dist" bs=1M count=0 seek=4096
 	fi
@@ -57,10 +56,11 @@ fi
 # mv *.apk tmp/
 apk --arch "$arch" \
 	--root "$builddir" \
+	$(for repo in $(cat ../apk/repositories) "$mirror/$branch/main/" "$mirror/$branch/community/"; do echo \-X $repo; done) \
 	--no-cache \
 	-U --allow-untrusted --progress \
 	--initdb \
-	add tmp/*.apk
+	add alpine-base /home/*/packages/*/$arch/blissos-installer-*.apk
 
 # cp chroot.sh "$builddir"/
 # 
