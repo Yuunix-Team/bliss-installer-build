@@ -9,7 +9,7 @@ while [[ "$1" ]]; do
 	-c | --compression) [ -z "$2" ] && argerr "$1" || comp="$2" ;;
 	-d | --builddir) [ -z "$2" ] && argerr "$1" || builddir="$2" ;;
 	-o | --dist) [ -z "$2" ] && argerr "$1" || dist="$2" ;;
-	-s | --squashfs) echo use=squashfs && shift && continue ;;
+	-s | --squashfs) use=squashfs && shift && continue ;;
 	-i | --img) use=img && shift && continue ;;
 	-b | --cpio) use=cpio && shift && continue ;;
 	*) break ;;
@@ -60,11 +60,11 @@ apk --arch "$arch" \
 	--no-cache \
 	-U --allow-untrusted --progress \
 	--initdb \
-	add alpine-base jwm calamares xinit gzip /home/*/packages/*/$arch/blissos-installer-*.apk
+	add alpine-base jwm calamares xorg-server xf86-input-libinput xinit eudev mesa-dri-gallium grub doas agetty /home/*/packages/*/$arch/blissos-installer-*.apk
 
-# cp chroot.sh "$builddir"/
+cp chroot.sh "$builddir"/
 # 
-# SHELL=/bin/sh chroot "$builddir"/ /chroot.sh || cmderr
+SHELL=/bin/sh chroot "$builddir"/ /chroot.sh || cmderr
 
 # cp -r gearlock/src/* "$builddir"/
 	# "$builddir"/chroot.sh \
@@ -77,17 +77,17 @@ apk --arch "$arch" \
 # ln -s usr/bin "$builddir"/bin
 # ln -s usr/bin "$builddir"/sbin
 # ln -s bin "$builddir"/usr/sbin
-mkdir -p "$builddir"/usr/lib/modules "$builddir"/usr/lib/firmware
+# mkdir -p "$builddir"/usr/lib/modules "$builddir"/usr/lib/firmware
 
 if [ "$use" = "squashfs" ]; then
-	mksquashfs "$builddir" "$dist" -comp "$comp" -no-duplicates -no-recovery -always-use-fragments "$@" >/dev/null 2>&1 || cmderr
+	mksquashfs "$builddir" "$dist.sfs" -comp "$comp" -no-duplicates -no-recovery -always-use-fragments "$@" >/dev/null || cmderr
 else
 	outfile=$(readlink -f "$dist")
 	if [ "$use" = "img" ]; then
 		umount -r "$builddir"
 	else
 		cd "$builddir" || cderr "$builddir"
-		eval "find . | cpio --create --format='newc' | $comp $* > $outfile" >/dev/null 2>&1 || cmderr
+		eval "find . | cpio --create --format='newc' | $comp $* > $outfile" >/dev/null || cmderr
 		cd ..
 	fi
 	cd "$PWD" || cderr "$PWD"
