@@ -47,8 +47,8 @@ echo "Generate to $dist"
 
 PWD=$(pwd)
 
-rm -rf build dist tmp
-mkdir -p build dist tmp
+rm -rf build
+mkdir -p build
 
 # shellcheck disable=SC2046,SC2154,SC1001,SC2086,SC2002
 grep -Ev '^#' pkglist.txt | xargs apk --arch "$arch" \
@@ -59,11 +59,9 @@ grep -Ev '^#' pkglist.txt | xargs apk --arch "$arch" \
 	--initdb \
 	add
 
-cp chroot.sh "$builddir"
+cp chroot.sh userchroot.sh "$builddir"
 
 SHELL=/bin/sh chroot "$builddir" /chroot.sh
 
-rm -rf "$builddir"/chroot.sh
+rm -rf "$builddir"/chroot.sh "$builddir"/userchroot.sh
 
-# shellcheck disable=SC2068
-mksquashfs "$builddir" "$dist.sfs" -comp zstd -Xcompression-level 22 -no-duplicates -no-recovery -always-use-fragments $@ >/dev/null
