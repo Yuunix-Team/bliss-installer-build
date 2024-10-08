@@ -46,7 +46,7 @@ exec login -f root
 EOF
 chmod +x /usr/sbin/autologin
 sed -i 's@1::respawn:/sbin/getty@1::respawn:/sbin/getty -n -l /usr/sbin/autologin@g' /etc/inittab
-sed -i -r 's|^(root:.*:)/bin/ash$|\1/bin/bash|g' /etc/passwd
+sed -i -r 's|^(root:.*:)/bin/a?sh$|\1/bin/bash|g' /etc/passwd
 mkdir -p /root	
 
 # shellcheck disable=SC2016

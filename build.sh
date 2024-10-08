@@ -1,12 +1,14 @@
 #!/bin/bash
 
+trap 'exit 1' EXIT
+
 err() { echo -e "ERROR: $1 !" && exit 1; }
 argerr() { err "Cannot set $1 to empty"; }
 cmderr() { err "Command failed"; }
 cderr() { err "Path $1 is not found"; }
 
-if (($(id -u) != 0)); then
 	# shellcheck disable=SC2068
+if (($(id -u) != 0)); then
 	if [ "$(command -v sudo)" ]; then
 		sudo "$0" $@
 	elif [ "$(command -v doas)" ]; then
@@ -14,8 +16,7 @@ if (($(id -u) != 0)); then
 	else
 		err "Please run this command as root"
 	fi
-	exit 1
-
+	exit $?
 fi
 
 while [[ "$1" ]]; do
@@ -66,4 +67,4 @@ SHELL=/bin/sh chroot "$builddir" /chroot.sh
 rm -rf "$builddir"/chroot.sh
 
 # shellcheck disable=SC2068
-mksquashfs "$builddir" "$dist.sfs" -comp zstd -Xcompression-level 22 -no-duplicates -no-recovery -always-use-fragments $@ >/dev/null
+mksquashfs "$builddir" "$dist" -comp zstd -Xcompression-level 22 -no-duplicates -no-recovery -always-use-fragments $@ >/dev/null
