@@ -47,7 +47,7 @@ EOF
 chmod +x /usr/sbin/autologin
 sed -i 's@1::respawn:/sbin/getty@1::respawn:/sbin/getty -n -l /usr/sbin/autologin@g' /etc/inittab
 sed -i -r 's|^(root:.*:)/bin/a?sh$|\1/bin/bash|g' /etc/passwd
-mkdir -p /root	
+mkdir -p /root /sys
 
 # shellcheck disable=SC2016
 echo '[ -z "$DISPLAY" ] && { startx /usr/bin/calamares; poweroff; }' >/root/.bash_profile
