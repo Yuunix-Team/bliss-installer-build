@@ -1,94 +1,69 @@
 #!/bin/bash
 
-. .rc
+err() { echo -e "ERROR: $1 !" && exit 1; }
+argerr() { err "Cannot set $1 to empty"; }
+cmderr() { err "Command failed"; }
+cderr() { err "Path $1 is not found"; }
 
-ckroot
+if (($(id -u) != 0)); then
+	# shellcheck disable=SC2068
+	if [ "$(command -v sudo)" ]; then
+		sudo "$0" $@
+	elif [ "$(command -v doas)" ]; then
+		doas "$0" $@
+	else
+		err "Please run this command as root"
+	fi
+	exit 1
+
+fi
 
 while [[ "$1" ]]; do
 	case "$1" in
-	-c | --compression) [ -z "$2" ] && argerr "$1" || comp="$2" ;;
+	-a | --arch) [ -z "$2" ] && argerr "$1" || arch="$2" ;;
+	-m | --mirror) [ -z "$2" ] && argerr "$1" || mirror="$2" ;;
+	-b | --branch) [ -z "$2" ] && argerr "$1" || branch="$2" ;;
 	-d | --builddir) [ -z "$2" ] && argerr "$1" || builddir="$2" ;;
 	-o | --dist) [ -z "$2" ] && argerr "$1" || dist="$2" ;;
-	-s | --squashfs) use=squashfs && shift && continue ;;
-	-i | --img) use=img && shift && continue ;;
-	-b | --cpio) use=cpio && shift && continue ;;
 	*) break ;;
 	esac
 	shift 2
 done
-PWD=$(pwd)
 
-if [ "$use" != "img" ]; then
-	[ -z "$comp" ] && read -rp "Enter compression program: (default: zstd): " comp
-	[ -z "$comp" ] && comp=zstd
-fi
+[ -z "$mirror" ] && read -rp "Enter mirror (default: https://dl-cdn.alpinelinux.org/alpine): " mirror
+mirror=${mirror:-"https://dl-cdn.alpinelinux.org/alpine"}
 
-[ "$builddir" ] || builddir=./build
+[ -z "$branch" ] && read -rp "Enter branch (default: latest-stable): " branch
+branch=${branch:-latest-stable}
+
+[ -z "$arch" ] && read -rp "Enter architecture: (default: x86): " arch
+arch=${arch:-x86}
+
+builddir=${builddir:-./build}
 echo "Build directory is $builddir"
 
-[ "$dist" ] || dist=./dist/gearlock.img
+[ "$dist" ] || dist=./dist/installer.sfs
 echo "Generate to $dist"
-[ -z "$use" ] && use=img
 
-rm -rf build dist
-mkdir -p build dist
+PWD=$(pwd)
 
-# cd tmp
-# apk --arch "$arch" \
-# 	-X "$(cat ../apk/repositories)" \
-# 	-X "$mirror/$branch/main/" \
-# 	-X "$mirror/$branch/community/" \
-# 	--no-cache \
-# 	-U --allow-untrusted --progress \
-# 	fetch $(tr "\n" " " <"../$pkglist") || cmderr
-# cd ..
+rm -rf build dist tmp
+mkdir -p build dist tmp
 
-if [ "$use" = "img" ]; then
-	if [ "$(command -v truncate)" ]; then
-		truncate -s 4096M "$dist"
-	else
-		dd if=/dev/zero of="$dist" bs=1M count=0 seek=4096
-	fi
-	mkfs.ext4 "$dist"
-	mount -o loop "$dist" "$(ls -d "$builddir")"
-fi
-
-# mv *.apk tmp/
-apk --arch "$arch" \
+# shellcheck disable=SC2046,SC2154,SC1001,SC2086,SC2002
+grep -Ev '^#' pkglist.txt | xargs apk --arch "$arch" \
 	--root "$builddir" \
-	$(for repo in $(cat ../apk/repositories) "$mirror/$branch/main/" "$mirror/$branch/community/"; do echo \-X $repo; done) \
+	$(for repo in $(cat apk/repositories) "$mirror/$branch/main" "$mirror/$branch/community"; do echo \-X "$repo"; done) \
 	--no-cache \
 	-U --allow-untrusted --progress \
 	--initdb \
-	add alpine-base jwm calamares xorg-server xf86-input-libinput xinit eudev mesa-dri-gallium grub doas agetty /home/*/packages/*/$arch/blissos-installer-*.apk
+	add
 
-cp chroot.sh "$builddir"/
-# 
-SHELL=/bin/sh chroot "$builddir"/ /chroot.sh || cmderr
+cp chroot.sh "$builddir"
 
-# cp -r gearlock/src/* "$builddir"/
-	# "$builddir"/chroot.sh \
-# rm -rf \
-# 	"$builddir"/bin \
-# 	"$builddir"/lib \
-# 	"$builddir"/sbin \
-# 	"$builddir"/usr/sbin
-# ln -s usr/lib "$builddir"/lib
-# ln -s usr/bin "$builddir"/bin
-# ln -s usr/bin "$builddir"/sbin
-# ln -s bin "$builddir"/usr/sbin
-# mkdir -p "$builddir"/usr/lib/modules "$builddir"/usr/lib/firmware
+SHELL=/bin/sh chroot "$builddir" /chroot.sh
 
-if [ "$use" = "squashfs" ]; then
-	mksquashfs "$builddir" "$dist.sfs" -comp "$comp" -no-duplicates -no-recovery -always-use-fragments "$@" >/dev/null || cmderr
-else
-	outfile=$(readlink -f "$dist")
-	if [ "$use" = "img" ]; then
-		umount -r "$builddir"
-	else
-		cd "$builddir" || cderr "$builddir"
-		eval "find . | cpio --create --format='newc' | $comp $* > $outfile" >/dev/null || cmderr
-		cd ..
-	fi
-	cd "$PWD" || cderr "$PWD"
-fi
+rm -rf "$builddir"/chroot.sh
+
+# shellcheck disable=SC2068
+mksquashfs "$builddir" "$dist.sfs" -comp zstd -Xcompression-level 22 -no-duplicates -no-recovery -always-use-fragments $@ >/dev/null
