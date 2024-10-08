@@ -1,12 +1,14 @@
 #!/bin/bash
 
+trap 'exit 1' EXIT
+
 err() { echo -e "ERROR: $1 !" && exit 1; }
 argerr() { err "Cannot set $1 to empty"; }
 cmderr() { err "Command failed"; }
 cderr() { err "Path $1 is not found"; }
 
+# shellcheck disable=SC2068
 if (($(id -u) != 0)); then
-	# shellcheck disable=SC2068
 	if [ "$(command -v sudo)" ]; then
 		sudo "$0" $@
 	elif [ "$(command -v doas)" ]; then
@@ -14,8 +16,7 @@ if (($(id -u) != 0)); then
 	else
 		err "Please run this command as root"
 	fi
-	exit 1
-
+	exit $?
 fi
 
 while [[ "$1" ]]; do
@@ -24,7 +25,6 @@ while [[ "$1" ]]; do
 	-m | --mirror) [ -z "$2" ] && argerr "$1" || mirror="$2" ;;
 	-b | --branch) [ -z "$2" ] && argerr "$1" || branch="$2" ;;
 	-d | --builddir) [ -z "$2" ] && argerr "$1" || builddir="$2" ;;
-	-o | --dist) [ -z "$2" ] && argerr "$1" || dist="$2" ;;
 	*) break ;;
 	esac
 	shift 2
@@ -41,9 +41,6 @@ arch=${arch:-x86}
 
 builddir=${builddir:-./build}
 echo "Build directory is $builddir"
-
-[ "$dist" ] || dist=./dist/installer.sfs
-echo "Generate to $dist"
 
 PWD=$(pwd)
 
@@ -64,4 +61,3 @@ cp chroot.sh userchroot.sh "$builddir"
 SHELL=/bin/sh chroot "$builddir" /chroot.sh
 
 rm -rf "$builddir"/chroot.sh "$builddir"/userchroot.sh
-
